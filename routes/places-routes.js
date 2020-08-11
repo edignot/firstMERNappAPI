@@ -34,8 +34,18 @@ const DUMMY_PLACES = [
 router.get('/:placeId', (req, res, next) => {
     const placeId = req.params.placeId;
     const foundPlace = DUMMY_PLACES.find((place) => place.id === placeId);
-    res.json(foundPlace);
+
+    !foundPlace
+        ? res.status(404).json({ message: 'Could not find a place' })
+        : res.json(foundPlace);
 });
 
-// node export syntax, exporting configured router object
+router.get('/user/:userId', (req, res, next) => {
+    const userId = req.params.userId;
+    const userPlaces = DUMMY_PLACES.filter(
+        (place) => place.creatorId === userId
+    );
+    res.json(userPlaces);
+});
+
 module.exports = router;
