@@ -10,7 +10,6 @@ app.use(bodyParser.json());
 
 app.use('/api/places', placesRoutes);
 
-// error handling for unsupported routes
 app.use((req, res, next) => {
     const error = new HttpError('Could not find this route', 404);
     next(error);
