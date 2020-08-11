@@ -1,60 +1,15 @@
 const express = require('express');
-
-const HttpError = require('../models/http-error');
-
+const {
+    getPlaceById,
+    getPlacesByUserId,
+    createPlace,
+} = require('../controllers/places-controller.js');
 const router = express.Router();
 
-const DUMMY_PLACES = [
-    {
-        id: 'i1',
-        image:
-            'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80',
-        title: 't1',
-        description: 'd1',
-        address: 'a1',
-        creatorId: '1',
-        coordinates: {
-            lat: 39.73915,
-            lng: -104.9847,
-        },
-    },
-    {
-        id: 'i2',
-        image:
-            'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80',
-        title: 't2',
-        description: 'd2',
-        address: 'a2',
-        creatorId: '1',
-        coordinates: {
-            lat: 39.73915,
-            lng: -104.9847,
-        },
-    },
-];
+router.get('/:placeId', getPlaceById);
 
-router.get('/:placeId', (req, res, next) => {
-    const placeId = req.params.placeId;
-    const foundPlace = DUMMY_PLACES.find((place) => place.id === placeId);
+router.get('/user/:userId', getPlacesByUserId);
 
-    if (!foundPlace) {
-        next(new HttpError('could not find a place', 404));
-    } else {
-        res.json({ foundPlace });
-    }
-});
-
-router.get('/user/:userId', (req, res, next) => {
-    const userId = req.params.userId;
-    const userPlaces = DUMMY_PLACES.filter(
-        (place) => place.creatorId === userId
-    );
-
-    if (!userPlaces.length) {
-        next(new HttpError('could not find any places', 404));
-    } else {
-        res.json({ userPlaces });
-    }
-});
+router.post('/', createPlace);
 
 module.exports = router;
