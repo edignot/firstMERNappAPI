@@ -13,3 +13,5 @@ const placeSchema = new Schema({
     },
     creatorId: { type: String, required: true },
 });
+
+module.exports = mongoose.model('Place', placeSchema);
