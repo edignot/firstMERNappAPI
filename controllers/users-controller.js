@@ -3,7 +3,13 @@ const { validationResult } = require('express-validator');
 const User = require('../models/user.js');
 
 const getUsers = async (req, res, next) => {
-    const allUsers = await User.find({}, '-password');
+    let allUsers;
+    try {
+        allUsers = await User.find({}, '-password');
+    } catch (err) {
+        return next(new HttpError('getting users failed', 500));
+    }
+
     res.json({
         allUsers: allUsers.map((user) => user.toObject({ getters: true })),
     });
@@ -16,7 +22,7 @@ const signUp = async (req, res, next) => {
         return next(new HttpError('invalid inputs', 422));
     }
 
-    const { name, email, password, image, places } = req.body;
+    const { name, email, password, image } = req.body;
 
     let existingUser;
 
@@ -32,7 +38,7 @@ const signUp = async (req, res, next) => {
             email,
             password,
             image,
-            places,
+            places: [],
         });
 
         try {
