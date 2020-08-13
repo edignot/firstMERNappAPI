@@ -1,32 +1,3 @@
-let DUMMY_PLACES = [
-    {
-        id: 'i1',
-        image:
-            'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80',
-        title: 't1',
-        description: 'd1',
-        address: 'a1',
-        creatorId: '1',
-        coordinates: {
-            lat: 39.73915,
-            lng: -104.9847,
-        },
-    },
-    {
-        id: 'i2',
-        image:
-            'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80',
-        title: 't2',
-        description: 'd2',
-        address: 'a2',
-        creatorId: '1',
-        coordinates: {
-            lat: 39.73915,
-            lng: -104.9847,
-        },
-    },
-];
-
 const HttpError = require('../models/http-error');
 const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
@@ -34,12 +5,15 @@ const Place = require('../models/place');
 
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.placeId;
+
     let foundPlace;
+
     try {
         foundPlace = await Place.findById(placeId);
     } catch (err) {
         next(new HttpError('Something went wrong', 500));
     }
+
     if (!foundPlace) {
         return next(new HttpError('could not find a place', 404));
     } else {
@@ -49,12 +23,15 @@ const getPlaceById = async (req, res, next) => {
 
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
+
     let userPlaces;
+
     try {
         userPlaces = await Place.find({ creatorId: userId });
     } catch (err) {
         return next(new HttpError('Something went wrong', 500));
     }
+
     if (!userPlaces.length) {
         next(new HttpError('could not find any places', 404));
     } else {
@@ -68,6 +45,7 @@ const getPlacesByUserId = async (req, res, next) => {
 
 const createPlace = async (req, res, next) => {
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
         next(new HttpError('invalid inputs', 422));
     } else {
@@ -108,6 +86,7 @@ const updatePlace = async (req, res, next) => {
         const placeId = req.params.placeId;
 
         let updatedPlace;
+
         try {
             updatedPlace = await Place.findById(placeId);
         } catch (err) {
@@ -128,14 +107,23 @@ const updatePlace = async (req, res, next) => {
     }
 };
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
     const placeId = req.params.placeId;
-    if (DUMMY_PLACES.find((place) => place.id === placeId)) {
-        next(new HttpError('Could not find a place by ID', 404));
-    } else {
-        DUMMY_PLACES = DUMMY_PLACES.filter((place) => place.id !== placeId);
-        res.status(200).json({ message: 'Place deleted' });
+
+    let place;
+    try {
+        place = await Place.findById(placeId);
+    } catch (err) {
+        return next(new HttpError('Something went wrong', 500));
     }
+
+    try {
+        await place.remove();
+    } catch (err) {
+        return next(new HttpError('Something went wrong', 500));
+    }
+
+    res.status(200).json({ message: 'Place deleted' });
 };
 
 exports.getPlaceById = getPlaceById;
