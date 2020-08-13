@@ -32,25 +32,37 @@ const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
 const Place = require('../models/place');
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
     const placeId = req.params.placeId;
-    const foundPlace = DUMMY_PLACES.find((place) => place.id === placeId);
+    let foundPlace;
+    try {
+        foundPlace = await Place.findById(placeId);
+    } catch (err) {
+        next(new HttpError('Something went wrong', 500));
+    }
     if (!foundPlace) {
-        next(new HttpError('could not find a place', 404));
+        return next(new HttpError('could not find a place', 404));
     } else {
-        res.json({ foundPlace });
+        res.json({ foundPlace: foundPlace.toObject({ getters: true }) });
     }
 };
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
-    const userPlaces = DUMMY_PLACES.filter(
-        (place) => place.creatorId === userId
-    );
+    let userPlaces;
+    try {
+        userPlaces = await Place.find({ creatorId: userId });
+    } catch (err) {
+        return next(new HttpError('Something went wrong', 500));
+    }
     if (!userPlaces.length) {
         next(new HttpError('could not find any places', 404));
     } else {
-        res.json({ userPlaces });
+        res.json({
+            userPlaces: userPlaces.map((place) =>
+                place.toObject({ getters: true })
+            ),
+        });
     }
 };
 
