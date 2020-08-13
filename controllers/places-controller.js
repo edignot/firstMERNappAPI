@@ -69,8 +69,7 @@ const createPlace = async (req, res, next) => {
         try {
             await newPlace.save();
         } catch (err) {
-            const error = new HttpError(`Couldn't create place`, 500);
-            return next(error);
+            return next(new HttpError(`Couldn't create place`, 500));
         }
 
         res.status(201).json(newPlace);
