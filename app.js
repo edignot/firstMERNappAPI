@@ -1,9 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const mongoose = require('mongoose');
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
+require('dotenv').config();
 
 const app = express();
 
@@ -25,4 +26,10 @@ app.use((error, req, res, next) => {
     res.json({ message: error.message || 'Unknown error occurred' });
 });
 
-app.listen(5000);
+mongoose
+    .connect(
+        `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nsedf.mongodb.net/places?retryWrites=true&w=majority`,
+        { useNewUrlParser: true }
+    )
+    .then(() => app.listen(5000))
+    .catch((err) => console.log(err));
