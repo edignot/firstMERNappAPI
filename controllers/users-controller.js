@@ -2,8 +2,11 @@ const HttpError = require('../models/http-error');
 const { validationResult } = require('express-validator');
 const User = require('../models/user.js');
 
-const getUsers = (req, res, next) => {
-    res.json({ users: DUMMY_USERS });
+const getUsers = async (req, res, next) => {
+    const allUsers = await User.find({}, '-password');
+    res.json({
+        allUsers: allUsers.map((user) => user.toObject({ getters: true })),
+    });
 };
 
 const signUp = async (req, res, next) => {
