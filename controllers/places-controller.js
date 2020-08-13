@@ -99,23 +99,32 @@ const createPlace = async (req, res, next) => {
     }
 };
 
-const updatePlace = (req, res, next) => {
+const updatePlace = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         next(new HttpError('invalid inputs', 422));
     } else {
         const { title, description } = req.body;
         const placeId = req.params.placeId;
-        const updatedPlace = {
-            ...DUMMY_PLACES.find((place) => place.id === placeId),
-        };
-        const placeIndex = DUMMY_PLACES.findIndex(
-            (place) => place.id === placeId
-        );
-        updatedPlace.title = title;
+
+        let updatedPlace;
+        try {
+            updatedPlace = await Place.findById(placeId);
+        } catch (err) {
+            return next(new HttpError('Something went wrong', 500));
+        }
         updatedPlace.description = description;
-        DUMMY_PLACES[placeIndex] = updatedPlace;
-        res.status(200).json(DUMMY_PLACES[placeIndex]);
+        updatedPlace.title = title;
+
+        try {
+            await updatedPlace.save();
+        } catch (err) {
+            return next(new HttpError('Something went wrong', 500));
+        }
+
+        res.status(200).json({
+            updatePlace: updatedPlace.toObject({ getters: true }),
+        });
     }
 };
 
