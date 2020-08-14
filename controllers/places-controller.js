@@ -1,5 +1,4 @@
 const HttpError = require('../models/http-error');
-const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
 const Place = require('../models/place');
 const User = require('../models/user');
