@@ -22,7 +22,7 @@ const signUp = async (req, res, next) => {
         return next(new HttpError('invalid inputs', 422));
     }
 
-    const { name, email, password, image } = req.body;
+    const { name, email, password } = req.body;
 
     let existingUser;
 
@@ -37,7 +37,8 @@ const signUp = async (req, res, next) => {
             name,
             email,
             password,
-            image,
+            image:
+                'https://images.unsplash.com/photo-1542103749-8ef59b94f47e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
             places: [],
         });
 
